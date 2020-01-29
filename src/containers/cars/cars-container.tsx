@@ -8,33 +8,33 @@ import TableCell from "@material-ui/core/TableCell";
 import TableBody from "@material-ui/core/TableBody";
 import * as Types from "EqTypes";
 import {Dispatch} from "redux";
-import {actionTypes} from "../../actions";
 import {connect} from "react-redux";
 import {ICar} from "EqTypes";
+import {useEffect} from "react";
+import {fetchCars} from "../../reducers/car-reducers";
+import LoadingProgress from "../../components/loading-progress/loading-progress";
+
+import './style.scss';
 
 const TableOfContents = props => {
   let carsJSX: JSX.Element[] | JSX.Element;
 
   props.list.length
-      ? carsJSX = props.list.map((car: ICar) => (
-          <TableRow key={car.VIN}>
-            <TableCell>{car.VIN}</TableCell>
-            <TableCell align="right">{car.Brand}</TableCell>
-            <TableCell align="right">{car.Model}</TableCell>
-            <TableCell align="right">{car.Grade}</TableCell>
-            <TableCell align="right">{car.Dealer || 'Loading...'}</TableCell>
-            <TableCell align="right">{car.Dealer || 'Loading...'}</TableCell>
-          </TableRow>
-      ))
+      ? carsJSX = props.list.map((car: ICar, index: number) => {
+
+        return (
+            <TableRow key={`${car.vin}_${index}`}>
+              <TableCell>{car.vin}</TableCell>
+              <TableCell align="right">{car.brand}</TableCell>
+              <TableCell align="right">{car.model}</TableCell>
+              <TableCell align="right">{car.grade}</TableCell>
+              <TableCell align="right">{car.dealer || 'Loading...'}</TableCell>
+              <TableCell align="right">{car.dealer || 'Loading...'}</TableCell>
+            </TableRow>
+        )
+      })
       : carsJSX = (
-          <TableRow>
-            <TableCell/>
-            <TableCell align="right"/>
-            <TableCell align="right"/>
-            <TableCell align="right"/>
-            <TableCell align="right"/>
-            <TableCell align="right"/>
-          </TableRow>
+          <TableRow/>
       );
 
   return (
@@ -58,24 +58,37 @@ const TableOfContents = props => {
   );
 };
 
-const Cars = props => (
-    <div className="container">
-      <TableOfContents {...props}/>
-    </div>
-);
+const Cars = props => {
+  useEffect(() => {
+    !props.list.length
+      && props.getInitialList();
+  });
+
+  return (
+      <div className="container">
+        <div className="table-layout">
+          <LoadingProgress loading={props.loading}/>
+          <TableOfContents {...props}/>
+        </div>
+      </div>
+  );
+};
 
 const MapStateToProps = (store: Types.ReducerState) => {
   return {
     count: store.cars.count,
-    list: store.cars.list
+    list: store.cars.list,
+    loading: store.cars.loading
   };
 };
 
 const MapDispatchToProps = (dispatch: Dispatch<Types.RootAction>) => ({
-  addToDo: (item: string) => dispatch({ type: actionTypes.ADD, payload: item }),
-  deleteToDo: (idx: number) => dispatch({ type: actionTypes.DELETE, payload: idx })
+  getInitialList: () => {
+    dispatch(fetchCars())
+  }
 });
 
 export default connect(
-    MapStateToProps
+    MapStateToProps,
+    MapDispatchToProps
 )(Cars);

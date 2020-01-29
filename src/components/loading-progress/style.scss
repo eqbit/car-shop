@@ -1,0 +1,9 @@
+.loading-progress {
+  height: 50px;
+  display: flex;
+  align-items: center;
+
+  & > * {
+    width: 100%;
+  }
+}

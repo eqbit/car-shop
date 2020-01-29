@@ -1,27 +1,19 @@
 import {action} from "typesafe-actions";
+import {ICar} from "EqTypes";
 
-export enum actionTypes {
-  ADD = "ADD",
-  DELETE = "DELETE"
+interface ISuccessPayload {
+  data: ICar[];
+  count: number;
 }
 
-export const todoActions = {
-  add: (item: string) => action(actionTypes.ADD, item),
-  delete: (index: number) => action(actionTypes.DELETE, index)
-};
+export enum actionTypes {
+  FETCH_CARS_SUCCESS = 'FETCH_CARS_SUCCESS',
+  FETCH_CARS_REQUEST = 'FETCH_CARS_REQUEST'
+}
 
-export const fetchCars = () => {
-  const requestHeaders: HeadersInit = new Headers();
-  requestHeaders.set('X-CS-Dealer-Id-Only', '1');
-
-  fetch('https://jlrc.dev.perx.ru/carstock/api/v1/vehicles/?state=active&hidden=false&group=new&per_page=10&page=0', {
-    headers: requestHeaders
-  })
-      .then(response => {
-        console.log(response.headers.get('X-Total-Count'))
-        return response.json()
-      })
-      .then(data => console.log(data))
-};
+export const carsActions = {
+  fetchRequest: (cars: ICar[]) => action(actionTypes.FETCH_CARS_REQUEST, cars),
+  fetchSuccess: (payload: ISuccessPayload) => action(actionTypes.FETCH_CARS_SUCCESS, payload)
+}
 
 

@@ -5,15 +5,15 @@ declare module "EqTypes" {
   export type RootAction = ActionType<typeof import("../actions")>;
 
   export interface ICar {
-    VIN: string
-    Brand: string
-    Model: string
-    Grade: string
-    Dealer: string
+    vin: string
+    brand: string
+    model: string
+    grade: string
+    dealer: string
   }
 
   export interface IDealer {
-    Name: string
-    Address: string
+    name: string
+    address: string
   }
 }
