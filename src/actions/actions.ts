@@ -10,14 +10,18 @@ export const todoActions = {
   delete: (index: number) => action(actionTypes.DELETE, index)
 };
 
-const requestHeaders: HeadersInit = new Headers();
-requestHeaders.set('X-CS-Dealer-Id-Only', '1');
+export const fetchCars = () => {
+  const requestHeaders: HeadersInit = new Headers();
+  requestHeaders.set('X-CS-Dealer-Id-Only', '1');
 
-fetch('https://jlrc.dev.perx.ru/carstock/api/v1/vehicles/?state=active&hidden=false&group=new&per_page=10&page=0', {
-  headers: requestHeaders
-})
-    .then(response => {
-      console.log(response.headers.get('X-Total-Count'))
-      return response.json()
-    })
-    .then(data => console.log(data))
+  fetch('https://jlrc.dev.perx.ru/carstock/api/v1/vehicles/?state=active&hidden=false&group=new&per_page=10&page=0', {
+    headers: requestHeaders
+  })
+      .then(response => {
+        console.log(response.headers.get('X-Total-Count'))
+        return response.json()
+      })
+      .then(data => console.log(data))
+};
+
+

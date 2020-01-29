@@ -1,13 +1,13 @@
 import * as Types from 'EqTypes';
 import {actionTypes} from "../actions/";
 
-interface ITodoModel {
+interface IStore {
   count: number;
   list: Types.ICar[];
 }
 
-export const initialState: ITodoModel = {
-  count: 2,
+export const initialState: IStore = {
+  count: 1,
   list: [
     {
       VIN: 'aasdas2',
@@ -19,23 +19,13 @@ export const initialState: ITodoModel = {
   ]
 };
 
-export const carReducer = (state: ITodoModel = initialState, action: Types.RootAction) => {
+export const carReducer = (state: IStore = initialState, action: Types.RootAction) => {
   switch (action.type) {
     case actionTypes.ADD: {
       return {
         ...state,
         count: state.count + 1,
         list: [...state.list, action.payload]
-      };
-    }
-    case actionTypes.DELETE: {
-      const list = [...state.list];
-      list.splice(action.payload, 1);
-
-      return {
-        ...state,
-        count: state.count - 1,
-        list: list
       };
     }
     default:
