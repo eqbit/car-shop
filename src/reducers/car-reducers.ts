@@ -1,18 +1,19 @@
 import * as Types from 'EqTypes';
-import { Action } from 'redux'
 import {actionTypes, carsActions} from "../actions/";
-import { ThunkAction } from 'redux-thunk'
+import {CARS_PER_PAGE} from "../constants";
 
 interface IStore {
   loading: boolean;
   count: number;
   list: Types.ICar[];
+  dealers: Types.IDealer[]
 }
 
 export const initialState: IStore = {
   loading: true,
   count: 0,
-  list: []
+  list: [],
+  dealers: []
 };
 
 const fetchCarsRequest = () => ({
@@ -36,9 +37,15 @@ export const carReducer = (state: IStore = initialState, action: Types.RootActio
     case actionTypes.FETCH_CARS_SUCCESS:
       return {
         ...state,
-        loading: false,
         count: action.payload.count,
-        list: [...state.list, ...action.payload.data]
+        list: [...action.payload.data]
+      };
+
+    case actionTypes.FETCH_DEALERS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        dealers: [...state.dealers, ...action.payload]
       };
 
     default:
@@ -46,7 +53,7 @@ export const carReducer = (state: IStore = initialState, action: Types.RootActio
   }
 };
 
-export const fetchCars = (): any => {
+export const fetchCars = (page: number = 0): any => {
   const requestHeaders: HeadersInit = new Headers();
   requestHeaders.set('X-CS-Dealer-Id-Only', '1');
 
@@ -55,7 +62,7 @@ export const fetchCars = (): any => {
   return (dispatch) => {
     dispatch(fetchCarsRequest());
 
-    fetch('https://jlrc.dev.perx.ru/carstock/api/v1/vehicles/?state=active&hidden=false&group=new&per_page=10&page=0', {
+    fetch(`https://jlrc.dev.perx.ru/carstock/api/v1/vehicles/?state=active&hidden=false&group=new&per_page=${CARS_PER_PAGE}&page=${page}`, {
       headers: requestHeaders
     })
         .then(response => {

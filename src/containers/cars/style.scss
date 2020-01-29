@@ -2,3 +2,26 @@
   padding-top: 25px;
   position: relative;
 }
+
+.pagination {
+  padding: 0;
+  display: flex;
+
+  li {
+    display: block;
+    margin: 10px;
+    outline: none;
+
+    a {
+      outline: none;
+    }
+
+    &:not(.disabled) {
+      cursor: pointer;
+    }
+
+    &.selected {
+      color: #00695c;
+    }
+  }
+}
