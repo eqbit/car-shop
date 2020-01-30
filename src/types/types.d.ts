@@ -13,7 +13,8 @@ declare module "EqTypes" {
   }
 
   export interface IDealer {
+    id: string
     name: string
-    address: string
+    address: string[]
   }
 }

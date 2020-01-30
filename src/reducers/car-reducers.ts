@@ -5,14 +5,14 @@ import {CARS_PER_PAGE} from "../constants";
 interface IStore {
   loading: boolean;
   count: number;
-  list: Types.ICar[];
+  cars: Types.ICar[];
   dealers: Types.IDealer[]
 }
 
 export const initialState: IStore = {
   loading: true,
   count: 0,
-  list: [],
+  cars: [],
   dealers: []
 };
 
@@ -23,6 +23,11 @@ const fetchCarsRequest = () => ({
 const fetchCarsSuccess = cars => ({
   type: actionTypes.FETCH_CARS_SUCCESS,
   payload: cars
+});
+
+const fetchDealers = dealer => ({
+  type: actionTypes.FETCH_DEALERS,
+  payload: dealer
 });
 
 
@@ -38,14 +43,14 @@ export const carReducer = (state: IStore = initialState, action: Types.RootActio
       return {
         ...state,
         count: action.payload.count,
-        list: [...action.payload.data]
+        cars: [...action.payload.data]
       };
 
-    case actionTypes.FETCH_DEALERS_SUCCESS:
+    case actionTypes.FETCH_DEALERS:
       return {
         ...state,
         loading: false,
-        dealers: [...state.dealers, ...action.payload]
+        dealers: [...state.dealers, action.payload]
       };
 
     default:
@@ -70,7 +75,38 @@ export const fetchCars = (page: number = 0): any => {
           return response.json()
         })
         .then(data => {
-          dispatch(fetchCarsSuccess({data, count}))
+          dispatch(fetchCarsSuccess({data, count}));
+
+          const dealerIDs = data.map(item => item.dealer)
+              .sort()
+              .filter((item, pos, arr) => !pos || item != arr[pos - 1]);
+          dispatch(fetchNeededDealers(dealerIDs));
         })
+  }
+};
+
+const fetchNeededDealers = (dealerIDs: String[]) => {
+  return (dispatch, getState) => {
+    const {dealers} = getState();
+
+    const foundDealers = dealers ? dealers.filter(dealer => dealerIDs.includes(dealer.id)).map(dealer => dealer.id) : [];
+    dealerIDs = dealerIDs.filter(id => !foundDealers.includes(id));
+
+    if(foundDealers.length < dealerIDs.length) {
+      dealerIDs.forEach(id => {
+        fetch(`https://jlrc.dev.perx.ru/carstock/api/v1/dealers/?id=${id}`)
+            .then(response => response.json())
+            .then(dealer => {
+              dispatch(fetchDealers({
+                id: id,
+                name: dealer[0].name,
+                address: dealer[0].offices
+                    .map(office => office.address)
+                    .sort()
+                    .filter((item, pos, arr) => !pos || item != arr[pos - 1])
+              }))
+            })
+      })
+    }
   }
 };
