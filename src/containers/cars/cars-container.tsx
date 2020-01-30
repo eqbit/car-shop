@@ -9,11 +9,10 @@ import TableBody from "@material-ui/core/TableBody";
 import TableFooter from "@material-ui/core/TableFooter";
 import { makeStyles, createStyles, Theme } from '@material-ui/core/styles';
 import * as Types from "EqTypes";
-import {Dispatch} from "redux";
 import {connect} from "react-redux";
 import {ICar} from "EqTypes";
 import {useEffect} from "react";
-import {fetchCars} from "../../reducers/car-reducers";
+import {fetchCarsMiddleware} from "../../actions";
 import LoadingProgress from "../../components/loading-progress/loading-progress";
 import ReactPaginate from 'react-paginate';
 import {CARS_PER_PAGE} from "../../constants";
@@ -31,27 +30,19 @@ const TableOfContents = props => {
   const classes = useStyles();
 
   let carsJSX: JSX.Element[] | JSX.Element;
-  let dealerNameJSX: JSX.Element;
-  let dealerAddressesJSX: JSX.Element[] | JSX.Element;
 
   props.cars.length
       ? carsJSX = props.cars.map((car: ICar, index: number) => {
-        const computedDealer = props.dealers && props.dealers.length && props.dealers.find(item => item.id === car.dealer);
-
-        dealerNameJSX = computedDealer ? <p>{computedDealer.name}</p> : <p/>;
-
-        dealerAddressesJSX = computedDealer
-            ? computedDealer.address.map((address, index) => <p key={`address_${index}`}>{address}</p>)
-            : <p/>;
-
         return (
             <TableRow key={`${car.vin}_${index}`}>
               <TableCell align="left" className={classes.cell}>{car.vin}</TableCell>
               <TableCell align="right" className={classes.cell}>{car.brand}</TableCell>
               <TableCell align="right" className={classes.cell}>{car.model}</TableCell>
               <TableCell align="right" className={classes.cell}>{car.grade}</TableCell>
-              <TableCell align="right" className={classes.cell}>{dealerNameJSX}</TableCell>
-              <TableCell align="right" className={classes.cell}>{dealerAddressesJSX}</TableCell>
+              <TableCell align="right" className={classes.cell}>{car.dealerName || 'not found'}</TableCell>
+              <TableCell align="right" className={classes.cell}>{
+                !!car.dealerAddresses && car.dealerAddresses.map(address => <p>{address}</p>)
+              }</TableCell>
             </TableRow>
         )
       })
@@ -115,14 +106,13 @@ const MapStateToProps = (store: Types.ReducerState) => {
   return {
     count: store.cars.count,
     cars: store.cars.cars,
-    loading: store.cars.loading,
-    dealers: store.cars.dealers
+    loading: store.cars.loading
   };
 };
 
-const MapDispatchToProps = (dispatch: Dispatch<Types.RootAction>) => ({
+const MapDispatchToProps = (dispatch) => ({
   fetchCars: (page?: number) => {
-    dispatch(fetchCars(page))
+    dispatch(fetchCarsMiddleware(page))
   }
 });
 

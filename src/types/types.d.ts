@@ -10,6 +10,8 @@ declare module "EqTypes" {
     model: string
     grade: string
     dealer: string
+    dealerName: string
+    dealerAddresses: string[]
   }
 
   export interface IDealer {
